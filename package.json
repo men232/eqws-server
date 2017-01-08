@@ -1,0 +1,14 @@
+{
+  "name": "eqws-server",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "keywords": [],
+  "author": "Andrew Mensky",
+  "license": "MIT",
+  "dependencies": {
+    "base64id": "^1.0.0",
+    "koa-compose": "^3.2.1",
+    "uws": "^0.12.0"
+  }
+}
