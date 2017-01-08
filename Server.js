@@ -1,6 +1,6 @@
-import uws from 'uws';
-import base64id from 'base64id';
-import EventEmitter from 'events';
+const uws = require('uws');
+const base64id = require('base64id');
+const EventEmitter = require('events');
 
 class Server extends EventEmitter {
 	constructor(opts) {
@@ -150,4 +150,4 @@ function sendMessage(msg) {
 	});
 }
 
-export default Server;
+module.exports = Server;

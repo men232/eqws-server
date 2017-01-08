@@ -1,4 +1,4 @@
-import ApiError from './ApiError';
+const ApiError = require('./ApiError');
 
 class Context {
 	constructor(socket, req) {
@@ -53,4 +53,4 @@ class Context {
 	}
 }
 
-export default Context;
+module.exports = Context;

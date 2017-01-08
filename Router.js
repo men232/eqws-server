@@ -1,5 +1,6 @@
-import compose from 'koa-compose';
-import {Context, ApiError} from './';
+const compose = require('koa-compose');
+const Context = require('./Context');
+const ApiError = require('./ApiError');
 
 class Router {
 	constructor() {
@@ -56,4 +57,4 @@ class Router {
 	}
 }
 
-export default Router;
+module.exports = Router;

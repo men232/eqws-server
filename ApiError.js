@@ -1,5 +1,3 @@
-'use strict';
-
 const ERROR_CODES = {
 	HAS_NO_ERRORS:       0,
 	UNKNOWN:             -1,
@@ -53,6 +51,10 @@ class ApiError {
 		};
 	}
 
+	toString() {
+		return 'ApiError: ' + this.message;
+	}
+
 	/**
 	 * Check error code number
 	 * @param  {Number|String}  Number or name of error code
@@ -90,4 +92,4 @@ function invert(obj) {
 }
 
 ApiError.CODES = ERROR_CODES;
-export default ApiError;
+module.exports = ApiError;
