@@ -1,7 +1,5 @@
 const base64id = require('base64id');
-const PSON     = require('pson');
-
-const pson = new PSON.StaticPair([]);
+const pson = require('./pson');
 
 module.exports = function(server) {
 	this.rooms  = [];
