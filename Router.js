@@ -28,10 +28,10 @@ class Router {
 	}
 
 	controller(socket, req) {
-		let ctx;
+		let ctx = new Context(socket);
 
 		try {
-			ctx = new Context(socket, req);
+			ctx.parseRequest(req);
 		} catch (err) {
 			ctx.onerror(101);
 			return;

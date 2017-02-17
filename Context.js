@@ -1,23 +1,31 @@
 const ApiError = require('./ApiError');
 
 class Context {
-	constructor(socket, req) {
+	constructor(socket) {
 		this.socket  = socket;
-		this.request = JSON.parse(req);
 		this.body    = null;
-		this.sid     = this.request.sid;
 		this.state   = {};
-		this.path    = this.request.method;
-		this.url     = this.request.method;
 		this.payload = {};
 		this.respond = false;
 		this.status  = 200;
 		this.lifettl = (new Date()).getTime();
 		this.logger  = socket.server.logger;
+		this.binary  = false;
+	}
+
+	parseRequest(req) {
+		if (typeof req !== 'string') {
+			this.binary = true;
+		}
+
+		this.request = this.socket.decode(req);
+		this.sid     = this.request.sid;
+		this.path    = this.request.method;
+		this.url     = this.request.method;
 
 		// Extend request object
 		this.request.protocol = 'ws';
-		this.request.ip       = socket._socket.remoteAddress;
+		this.request.ip       = this.socket._socket.remoteAddress;
 	}
 
 	throw(code, msg) {
@@ -31,7 +39,9 @@ class Context {
 
 		this.respond = true;
 		this.body.sid = this.sid;
-		this.socket.send(JSON.stringify(this.body));
+
+		let data = this.socket.encode(this.body, this.binary);
+		this.socket.send(data);
 	}
 
 	errorHandler(err) {
