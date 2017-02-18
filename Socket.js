@@ -38,7 +38,7 @@ function encode(data, binary) {
 }
 
 function decode(data) {
-	if (typeof req !== 'string') {
+	if (typeof data !== 'string') {
 		let ds = pson.decode(data);
 		return ds;
 	} else {
