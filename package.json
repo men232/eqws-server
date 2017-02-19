@@ -9,7 +9,7 @@
   "dependencies": {
     "base64id": "^1.0.0",
     "koa-compose": "^3.2.1",
-    "pson": "^2.0.0",
+    "msgpack-lite": "^0.1.26",
     "uws": "^0.12.0"
   }
 }

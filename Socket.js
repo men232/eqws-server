@@ -1,5 +1,5 @@
 const base64id = require('base64id');
-const pson = require('./pson');
+const msgpack  = require('./msgpack');
 
 module.exports = function(server) {
 	this.rooms  = [];
@@ -31,7 +31,7 @@ function leave(roomId) {
 
 function encode(data, binary) {
 	if (binary) {
-		return pson.encode(data).buffer;
+		return msgpack.encode(data);
 	} else {
 		return JSON.stringify(data);
 	}
@@ -39,8 +39,7 @@ function encode(data, binary) {
 
 function decode(data) {
 	if (typeof data !== 'string') {
-		let ds = pson.decode(data);
-		return ds;
+		return msgpack.decode(data);
 	} else {
 		return JSON.parse(data);
 	}
