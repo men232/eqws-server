@@ -1,20 +1,30 @@
 const base64id = require('base64id');
 const msgpack  = require('./msgpack');
+const EventEmitter = require('events');
 
 module.exports = function(server) {
 	this.rooms  = [];
 	this.id     = base64id.generateId();
 	this.server = server;
 
-	this.emit = emit;
-	this.join = join;
-	this.leave = leave;
+	this.sendEvent = sendEvent;
+	this.join      = join;
+	this.leave     = leave;
+	this.hasRoom   = hasRoom;
 
 	this.encode = encode;
 	this.decode = decode;
+
+	// Wrap events
+	let eventSystem = new EventEmitter();
+
+	this.on('message', eventSystem.emit.bind(eventSystem, 'message'));
+	this.on('close', eventSystem.emit.bind(eventSystem, 'close'));
+
+	this.eventSystem = eventSystem;
 };
 
-function emit(event, args) {
+function sendEvent(event, args) {
 	let data = this.encode({event, args});
 	this.send(data);
 
@@ -43,4 +53,8 @@ function decode(data) {
 	} else {
 		return JSON.parse(data);
 	}
+}
+
+function hasRoom(roomId) {
+	return this.rooms.indexOf(roomId) >= 0;
 }

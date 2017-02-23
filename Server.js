@@ -1,13 +1,17 @@
-const util = require('util');
+const util         = require('util');
 const EventEmitter = require('events');
-const uws = require('uws');
-const Socket = require('./Socket');
+const uid2         = require('uid2');
+const uws          = require('uws');
+const Socket       = require('./Socket');
+const RedisAdapter = require('./RedisAdapter');
 
 class Server extends EventEmitter {
 	constructor(opts) {
 		super();
 
-		this.wss    = new uws.Server(opts);
+		this.uid = uid2(6);
+		this.wss   = new uws.Server(opts);
+		this.redis = false;
 		this.rooms  = {
 			default: []
 		};
@@ -19,12 +23,11 @@ class Server extends EventEmitter {
 			warn: console.warn
 		};
 
-		this.$emit = EventEmitter.prototype.emit.bind(this);
 		this.wss.on('connection', this.onconnect.bind(this));
 	}
 
-	emit(eventName, args) {
-		this.broadcast('default', eventName, args);
+	useRedis(opts) {
+		this.redis = new RedisAdapter(this, opts);
 	}
 
 	to(roomId) {
@@ -39,11 +42,10 @@ class Server extends EventEmitter {
 
 				this.rooms[roomId][socket.id] = socket;
 
-				if (socket.rooms.indexOf(roomId) < 0) {
+				if (!socket.hasRoom(roomId)) {
 					socket.rooms.push(roomId);
+					this.emit('room.join', roomId, socket);
 				}
-
-				this.$emit('room.join', roomId, socket);
 			}
 		}
 	}
@@ -52,16 +54,27 @@ class Server extends EventEmitter {
 		if (this.rooms[roomId]) {
 			delete this.rooms[roomId][socket.id];
 
-			this.server.$emit('room.leave', roomId, socket);
+			let index = socket.rooms.indexOf(roomId);
+			socket.rooms.splice(index, 1);
+
+			if (Object.keys(this.rooms[roomId]).length === 0) {
+				delete this.rooms[roomId];
+			}
+
+			this.server.emit('room.leave', roomId, socket);
 		}
 	}
 
-	broadcast(roomId, event, args) {
+	broadcast(roomId, event, args, skipRedis = false) {
+		if (this.redis && !skipRedis) {
+			this.redis.publish(roomId, event, args);
+		}
+
 		let room = this.rooms[roomId];
 		if (!room) return;
 
 		for (let sid in room) {
-			room[sid].emit(event, args);
+			room[sid].sendEvent(event, args);
 		}
 	}
 
@@ -76,15 +89,15 @@ class Server extends EventEmitter {
 		Socket.call(socket, this);
 
 		socket.join('default');
-		socket.emit('auth', {id: socket.id});
+		socket.sendEvent('auth', {id: socket.id});
 
-		socket.once('close', () => {
+		socket.eventSystem.once('close', () => {
 			for(let roomId in socket.rooms) {
-				socket.leave(roomId);
+				this.leave(roomId, socket);
 			}
 		});
 
-		this.$emit('connection', socket);
+		this.emit('connection', socket);
 	}
 }
 

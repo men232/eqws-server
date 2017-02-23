@@ -20,7 +20,7 @@ class Router {
 	}
 
 	init(socket) {
-		socket.on('message', this.controller.bind(this, socket));
+		socket.eventSystem.on('message', this.controller.bind(this, socket));
 	}
 
 	use(fn) {

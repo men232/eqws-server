@@ -7,7 +7,8 @@ const MSGPACK_CODEC = msgpack.createCodec({
 });
 
 try {
-	const ObjectId = require(path.join(process.cwd(), 'node_modules', 'mongoose')).Types.ObjectId;
+	const mongoose = require(path.join(process.cwd(), 'node_modules', 'mongoose'));
+	const ObjectId = mongoose.Types.ObjectId;
 
 	MSGPACK_CODEC.addExtPacker(0x3F, ObjectId, (value) => {
 		return msgpack.encode(value.toString());
