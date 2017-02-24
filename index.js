@@ -1,9 +1,8 @@
 'use strict';
 
 const ApiError = require('./ApiError');
-const Context = require('./Context');
-const Router = require('./Router');
-const Server = require('./Server');
+const Router = require('./rpc/Router');
+const Server = require('./ServerWrapper');
 const msgpack = require('./msgpack');
 
-module.exports = {Server, Router, Context, ApiError, msgpack};
+module.exports = {Server, Router, ApiError, msgpack};

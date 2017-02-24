@@ -1,7 +1,7 @@
-const ApiError = require('./ApiError');
+const ApiError = require('../ApiError');
 
 class Context {
-	constructor(socket) {
+	constructor(socket, request) {
 		this.socket  = socket;
 		this.body    = null;
 		this.state   = {};
@@ -9,23 +9,27 @@ class Context {
 		this.respond = false;
 		this.status  = 200;
 		this.lifettl = (new Date()).getTime();
-		this.logger  = socket.server.logger;
-		this.binary  = false;
+		this.logger  = socket._options.logger;
+		this.route   = null;
 	}
 
-	parseRequest(req) {
-		if (typeof req !== 'string') {
-			this.binary = true;
+	parseRequest(request) {
+		if (typeof request !== 'object') {
+			throw new ApiError('INCORRECT_PARAMS');
+		} else if (!request.method) {
+			throw new ApiError('UNKNOW_API_METHOD');
+		} else if (!request.sid) {
+			throw new ApiError('INCORRECT_PARAMS', 'Incorrect sid');
 		}
 
-		this.request = this.socket.decode(req);
+		this.request = request;
 		this.sid     = this.request.sid;
 		this.path    = this.request.method;
 		this.url     = this.request.method;
 
 		// Extend request object
 		this.request.protocol = 'ws';
-		this.request.ip       = this.socket._socket.remoteAddress;
+		this.request.ip       = this.socket._handshakeData.remoteAddress;
 	}
 
 	throw(code, msg) {
@@ -39,9 +43,7 @@ class Context {
 
 		this.respond = true;
 		this.body.sid = this.sid;
-
-		let data = this.socket.encode(this.body, this.binary);
-		this.socket.send(data);
+		this.socket.send(this.body);
 	}
 
 	errorHandler(err) {
