@@ -32,7 +32,6 @@ class RoomPlugin {
 	}
 
 	_emit(roomId, eventName, args, broadcast = true) {
-		console.info('asfjalskfj akslfjalksfjakl sjfl ajsf ', arguments);
 		const log = this._options.logger;
 		const room = this._rooms[roomId];
 
@@ -69,7 +68,7 @@ class RoomPlugin {
 		const index = room.indexOf(socket);
 		const log = this._options.logger;
 
-		if (index <= 0) {
+		if (index < 0) {
 			log.debug('join to room', {socketId: socket.uid, roomId});
 
 			room.push(socket);
@@ -82,13 +81,13 @@ class RoomPlugin {
 
 		const log = this._options.logger;
 		const room = this._rooms[roomId];
-		const indexInServer = room.indexOf(socket.uid);
+		const indexInServer = room.indexOf(socket);
 		const indexInSocket = socket._rooms.indexOf(roomId);
 
 		log.debug('leave from room', {socketId: socket.uid, roomId});
 
-		room.splice(indexInServer, 1);
-		socket._rooms.splice(indexInSocket, 1);
+		if (indexInServer >= 0) room.splice(indexInServer, 1);
+		if (indexInSocket >= 0) socket._rooms.splice(indexInSocket, 1);
 
 		if (this._rooms[roomId].length === 0) {
 			delete this._rooms[roomId];
