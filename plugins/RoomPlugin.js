@@ -28,7 +28,7 @@ class RoomPlugin {
 	}
 
 	getSockets(roomId) {
-		return this._rooms[roomId] || [];
+		return this._rooms[roomId].slice(0) || [];
 	}
 
 	_emit(roomId, eventName, args, broadcast = true) {
