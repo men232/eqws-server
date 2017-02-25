@@ -4,9 +4,8 @@ const uid2         = require('uid2');
 const uws          = require('uws');
 const compose      = require('koa-compose');
 
-const SocketWrapper = require('./SocketWrapper');
-const RedisAdapter  = require('./RedisAdapter');
-const Parser        = require('./Parser');
+const SocketWrapper  = require('./SocketWrapper');
+const Parser         = require('./Parser');
 
 class ServerWrapper extends EventEmitter {
 	constructor(opts = {}) {
@@ -19,6 +18,7 @@ class ServerWrapper extends EventEmitter {
 
 		this._options = opts;
 		this._sockets = [];
+		this._plugins = [];
 
 		this._ws = new uws.Server(opts);
 		this._ws.on('error', this._onError.bind(this));
@@ -28,6 +28,11 @@ class ServerWrapper extends EventEmitter {
 			this._options.logger.debug(`simple auth (${socket.uid})`);
 			return {empty: true};
 		});
+	}
+
+	plugin(plugin) {
+		this._plugins.push(plugin);
+		plugin.init(this, this._options);
 	}
 
 	set(key, value) {
@@ -59,6 +64,7 @@ class ServerWrapper extends EventEmitter {
 		const log = this._options.logger;
 
 		this._detectMessageType(socketWrapper, handshakeData);
+		this.emit('connecting', socketWrapper);
 
 		log.debug(logMsg);
 

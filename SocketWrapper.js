@@ -23,13 +23,15 @@ class SocketWrapper extends EventEmitter {
 	}
 
 	setAuth(flag, data = null) {
+		const prevAuth = this.authData;
+
 		this.auth     = !!flag;
 		this.authData = data;
 
 		if (flag) {
-			this.emit('authorized', data);
+			this.emit('authorized', data, prevAuth);
 		} else {
-			this.emit('unauthorized');
+			this.emit('unauthorized', prevAuth);
 		}
 	}
 
