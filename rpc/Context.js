@@ -22,6 +22,9 @@ class Context {
 			throw new ApiError('INCORRECT_PARAMS', 'Incorrect sid');
 		}
 
+		const handshakeData = this.socket.getHandshakeData();
+		const headers       = handshakeData.headers || {};
+
 		this.request = request;
 		this.sid     = this.request.sid;
 		this.path    = this.request.method;
@@ -29,7 +32,7 @@ class Context {
 
 		// Extend request object
 		this.request.protocol = 'ws';
-		this.request.ip       = this.socket._handshakeData.remoteAddress;
+		this.request.ip       = headers['x-real-ip'] || handshakeData.remoteAddress;
 	}
 
 	throw(code, msg) {
