@@ -13,6 +13,7 @@ class ServerWrapper extends EventEmitter {
 
 		if (!opts.logger) opts.logger = console;
 		if (!opts.parser) opts.parser = Parser.json;
+		if (!opts.pingInterval) opts.pingInterval = 3000;
 
 		this.uid = uid2(6);
 

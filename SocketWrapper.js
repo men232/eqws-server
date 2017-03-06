@@ -20,6 +20,7 @@ class SocketWrapper extends EventEmitter {
 
 		this.socket.once('close', this._onSocketClose.bind(this));
 		this.socket.on('message', this._onSocketMessage.bind(this));
+		this._pingTimer = setInterval(this._ping.bind(this), opts.pingInterval);
 	}
 
 	setAuth(flag, data = null) {
@@ -64,10 +65,16 @@ class SocketWrapper extends EventEmitter {
 		this.socket.close();
 	}
 
+	_ping() {
+		this.socket.ping();
+	}
+
 	_onSocketClose() {
 		this.isClosed = true;
 		this.emit('close');
 		this.socket.removeAllListeners();
+		clearInterval(this._pingTimer);
+		this._pingTimer = null;
 	}
 
 	_onSocketMessage(data) {
