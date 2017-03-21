@@ -61,7 +61,7 @@ class ServerWrapper extends EventEmitter {
 	_onConnection(socket) {
 		const socketWrapper = new SocketWrapper(socket, this._options);
 		const handshakeData = socketWrapper.getHandshakeData();
-		const logMsg = `connection from ${handshakeData.referer} (${handshakeData.remoteAddress})`;
+		const logMsg = `connection from ${handshakeData.origin} (${handshakeData.remoteAddress})`;
 		const log = this._options.logger;
 
 		this._detectMessageType(socketWrapper, handshakeData);
