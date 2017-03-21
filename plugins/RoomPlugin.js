@@ -28,23 +28,24 @@ class RoomPlugin {
 	}
 
 	getSockets(roomId) {
-		return this._rooms[roomId].slice(0) || [];
+		const room = this._rooms[roomId];
+		return room ? room.slice(0) || [];
 	}
 
 	_emit(roomId, eventName, args, broadcast = true) {
-		const log = this._options.logger;
-		const room = this._rooms[roomId];
+		const log     = this._options.logger;
+		const sockets = this.getSockets(roomId);
 
 		if (broadcast) {
 			this._broadcast(roomId, eventName, args);
 		}
 
-		if (!room) return;
+		if (!sockets.length) return;
 
 		log.debug('emit room event', {roomId, eventName, args});
 
-		for (let uid in room) {
-			let socket = room[uid];
+		for (let uid in sockets) {
+			let socket = sockets[uid];
 			socket.sendEvent(eventName, args);
 		}
 	}
@@ -62,7 +63,9 @@ class RoomPlugin {
 	}
 
 	_join(socket, roomId) {
-		if (!this._rooms[roomId]) this._rooms[roomId] = [];
+		if (!this._rooms[roomId]) {
+			this._rooms[roomId] = [];
+		}
 
 		const room = this._rooms[roomId];
 		const index = room.indexOf(socket);
